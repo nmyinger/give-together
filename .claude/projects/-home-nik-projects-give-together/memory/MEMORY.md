@@ -1,0 +1,2 @@
+- [CharityBid project](project_charitybid.md) — Real-time charity auction platform, prd.md is the full blueprint
+- [User role](user_role.md) — Developer/founder, rapid MVP builder, prefers architecture-first approach
