@@ -26,7 +26,10 @@ export async function proxy(request: NextRequest) {
   )
 
   // Refreshes the session if expired. Required for Server Components to see fresh auth.
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (request.nextUrl.pathname.startsWith('/account')) {
+    console.log('[proxy] /account — user:', user?.id ?? 'null', '| error:', authError?.message ?? 'none')
+  }
 
   // Protect /account route
   if (!user && request.nextUrl.pathname.startsWith('/account')) {

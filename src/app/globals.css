@@ -117,6 +117,14 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Semantic tokens for auction-specific UI states */
+:root {
+  --bid-highlight: hsl(142, 71%, 45%);
+  --urgent: hsl(0, 72%, 51%);
+  --winning: hsl(142, 71%, 45%);
+  --outbid: hsl(0, 72%, 51%);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

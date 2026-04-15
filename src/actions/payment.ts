@@ -20,38 +20,47 @@ export async function createSetupIntent(): Promise<
     .eq('id', user.id)
     .single()
 
-  let customerId = profile?.stripe_customer_id
+  try {
+    let customerId = profile?.stripe_customer_id
 
-  // Create Stripe customer if they don't have one yet
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: user.email,
-      name: profile?.name || undefined,
-      metadata: { supabase_user_id: user.id },
+    // Create Stripe customer if they don't have one yet
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email,
+        name: profile?.name || undefined,
+        metadata: { supabase_user_id: user.id },
+      })
+      customerId = customer.id
+
+      await supabase
+        .from('users')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', user.id)
+    }
+
+    // Card-only SetupIntent — used with CardElement + confirmCardSetup.
+    const setupIntent = await stripe.setupIntents.create({
+      customer: customerId,
+      usage: 'off_session',
+      payment_method_types: ['card'],
     })
-    customerId = customer.id
 
-    await supabase
-      .from('users')
-      .update({ stripe_customer_id: customerId })
-      .eq('id', user.id)
+    if (!setupIntent.client_secret) {
+      return { clientSecret: null, error: 'Failed to create setup intent' }
+    }
+
+    return { clientSecret: setupIntent.client_secret, error: null }
+  } catch (err) {
+    console.error('[createSetupIntent] Stripe error:', err)
+    return { clientSecret: null, error: 'Payment setup failed. Please try again.' }
   }
-
-  // Create SetupIntent to save the card for off-session use
-  const setupIntent = await stripe.setupIntents.create({
-    customer: customerId,
-    usage: 'off_session',
-    payment_method_types: ['card'],
-  })
-
-  if (!setupIntent.client_secret) {
-    return { clientSecret: null, error: 'Failed to create setup intent' }
-  }
-
-  return { clientSecret: setupIntent.client_secret, error: null }
 }
 
-export async function confirmPaymentMethod(): Promise<{ success: boolean; error?: string }> {
+// paymentMethodId comes directly from setupIntent.payment_method on the client,
+// so we know exactly which PM was confirmed — no list call needed.
+export async function confirmPaymentMethod(
+  paymentMethodId: string
+): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -69,29 +78,29 @@ export async function confirmPaymentMethod(): Promise<{ success: boolean; error?
     return { success: false, error: 'No Stripe customer found' }
   }
 
-  // Verify they actually have a payment method
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: profile.stripe_customer_id,
-    type: 'card',
-    limit: 1,
-  })
+  try {
+    // Verify the PM actually belongs to this customer (security check)
+    const pm = await stripe.paymentMethods.retrieve(paymentMethodId)
+    if (pm.customer !== profile.stripe_customer_id) {
+      return { success: false, error: 'Payment method mismatch' }
+    }
 
-  if (paymentMethods.data.length === 0) {
-    return { success: false, error: 'No payment method found' }
+    // Set as the default payment method for off-session charges
+    await stripe.customers.update(profile.stripe_customer_id, {
+      invoice_settings: {
+        default_payment_method: paymentMethodId,
+      },
+    })
+
+    // Mark user as having a payment method
+    await supabase
+      .from('users')
+      .update({ has_payment_method: true })
+      .eq('id', user.id)
+
+    return { success: true }
+  } catch (err) {
+    console.error('[confirmPaymentMethod] Stripe error:', err)
+    return { success: false, error: 'Failed to confirm payment method. Please try again.' }
   }
-
-  // Set the default payment method on the customer
-  await stripe.customers.update(profile.stripe_customer_id, {
-    invoice_settings: {
-      default_payment_method: paymentMethods.data[0].id,
-    },
-  })
-
-  // Mark as having a payment method
-  await supabase
-    .from('users')
-    .update({ has_payment_method: true })
-    .eq('id', user.id)
-
-  return { success: true }
 }

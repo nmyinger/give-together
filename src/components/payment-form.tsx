@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   Elements,
-  PaymentElement,
+  CardElement,
   useStripe,
   useElements,
 } from '@stripe/react-stripe-js'
@@ -15,10 +15,11 @@ import { confirmPaymentMethod } from '@/actions/payment'
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface PaymentFormInnerProps {
+  clientSecret: string
   onSuccess: () => void
 }
 
-function PaymentFormInner({ onSuccess }: PaymentFormInnerProps) {
+function PaymentFormInner({ clientSecret, onSuccess }: PaymentFormInnerProps) {
   const stripe = useStripe()
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
@@ -27,25 +28,35 @@ function PaymentFormInner({ onSuccess }: PaymentFormInnerProps) {
     e.preventDefault()
     if (!stripe || !elements) return
 
+    const card = elements.getElement(CardElement)
+    if (!card) return
+
     setIsLoading(true)
     try {
-      const { error } = await stripe.confirmSetup({
-        elements,
-        redirect: 'if_required',
+      const { setupIntent, error } = await stripe.confirmCardSetup(clientSecret, {
+        payment_method: { card },
       })
 
       if (error) {
-        toast.error(error.message ?? 'Failed to save payment method')
+        toast.error(error.message ?? 'Failed to save card')
         return
       }
 
-      // Confirm on the server and set has_payment_method = true
-      const result = await confirmPaymentMethod()
+      if (!setupIntent?.payment_method) {
+        toast.error('Card setup incomplete — please try again')
+        return
+      }
+
+      const pmId = typeof setupIntent.payment_method === 'string'
+        ? setupIntent.payment_method
+        : setupIntent.payment_method.id
+
+      const result = await confirmPaymentMethod(pmId)
       if (result.success) {
-        toast.success('Payment method saved!')
+        toast.success('Card saved!')
         onSuccess()
       } else {
-        toast.error(result.error ?? 'Failed to confirm payment method')
+        toast.error(result.error ?? 'Failed to confirm card')
       }
     } finally {
       setIsLoading(false)
@@ -53,14 +64,26 @@ function PaymentFormInner({ onSuccess }: PaymentFormInnerProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement
-        options={{
-          layout: 'tabs',
-        }}
-      />
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="rounded-lg border border-white/20 bg-white/5 px-4 py-3">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                color: '#ffffff',
+                fontFamily: 'inherit',
+                fontSize: '15px',
+                fontSmoothing: 'antialiased',
+                '::placeholder': { color: 'rgba(255,255,255,0.35)' },
+              },
+              invalid: { color: '#ef4444' },
+            },
+            hidePostalCode: true,
+          }}
+        />
+      </div>
       <Button type="submit" disabled={!stripe || isLoading} className="w-full">
-        {isLoading ? 'Saving…' : 'Save Payment Method'}
+        {isLoading ? 'Saving…' : 'Save Card'}
       </Button>
     </form>
   )
@@ -76,21 +99,12 @@ export function PaymentForm({ clientSecret, onSuccess }: PaymentFormProps) {
     <Elements
       stripe={stripePromise}
       options={{
-        clientSecret,
         appearance: {
           theme: 'night',
-          variables: {
-            colorPrimary: '#ffffff',
-            colorBackground: '#0a0a0a',
-            colorText: '#ffffff',
-            colorDanger: '#ef4444',
-            fontFamily: 'inherit',
-            borderRadius: '8px',
-          },
         },
       }}
     >
-      <PaymentFormInner onSuccess={onSuccess} />
+      <PaymentFormInner clientSecret={clientSecret} onSuccess={onSuccess} />
     </Elements>
   )
 }
