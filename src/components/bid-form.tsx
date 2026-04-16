@@ -69,7 +69,7 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
 
   if (auction.status === 'closed') {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 text-center">
+      <div className="rounded-xl border border-white/8 bg-card p-5 text-center">
         <p className="text-muted-foreground text-sm">This auction has ended.</p>
       </div>
     )
@@ -77,9 +77,12 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-3">
+      <div className="rounded-xl border border-white/8 bg-card p-5 space-y-3">
         <p className="text-sm text-muted-foreground text-center">Sign in to place a bid</p>
-        <Button className="w-full" onClick={() => router.push('/auth/login')}>
+        <Button
+          className="w-full bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/90 font-semibold"
+          onClick={() => router.push('/auth/login')}
+        >
           Sign in
         </Button>
       </div>
@@ -88,11 +91,14 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
 
   if (!hasPaymentMethod) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-3">
+      <div className="rounded-xl border border-white/8 bg-card p-5 space-y-3">
         <p className="text-sm text-muted-foreground text-center">
           Add a payment method to start bidding
         </p>
-        <Button className="w-full" onClick={() => router.push('/account')}>
+        <Button
+          className="w-full bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/90 font-semibold"
+          onClick={() => router.push('/account')}
+        >
           Add Payment Method
         </Button>
       </div>
@@ -100,10 +106,10 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-4">
+    <div className="rounded-xl border border-white/8 bg-card p-5 space-y-4">
       <div>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Minimum bid</p>
-        <p className="text-2xl font-bold tabular-nums">{formatCurrency(minBid)}</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Minimum bid</p>
+        <p className="font-display text-3xl text-[var(--gold)] tabular-nums leading-none">{formatCurrency(minBid)}</p>
       </div>
 
       {/* Quick bid buttons */}
@@ -115,7 +121,7 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
             size="sm"
             onClick={() => handleBid(amount)}
             disabled={isDisabled}
-            className="border-white/20 hover:bg-white/10 text-xs font-semibold tabular-nums"
+            className="border-white/15 hover:border-[var(--gold)]/40 hover:bg-[var(--gold)]/8 hover:text-[var(--gold)] text-xs font-semibold tabular-nums transition-colors"
           >
             {formatCurrency(amount)}
           </Button>

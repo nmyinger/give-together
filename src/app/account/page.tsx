@@ -26,21 +26,21 @@ export default async function AccountPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-10">
       <div>
-        <h1 className="text-2xl font-bold">Account</h1>
-        <p className="text-muted-foreground mt-1 text-sm">{authUser.email}</p>
+        <h1 className="font-display italic text-3xl">Account</h1>
+        <p className="text-muted-foreground mt-1.5 text-sm">{authUser.email}</p>
       </div>
 
-      <Separator className="border-white/10" />
+      <Separator className="bg-white/8" />
 
       <section className="space-y-4">
-        <h2 className="font-semibold">Profile</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Profile</h2>
         <ProfileForm user={profile} />
       </section>
 
-      <Separator className="border-white/10" />
+      <Separator className="bg-white/8" />
 
       <section className="space-y-4">
-        <h2 className="font-semibold">Payment Method</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Payment Method</h2>
         <AccountPaymentSection hasPaymentMethod={profile.has_payment_method} />
       </section>
     </div>
