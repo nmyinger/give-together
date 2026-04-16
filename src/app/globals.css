@@ -153,8 +153,83 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.73 0.130 82 / 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, oklch(0.58 0.12 260 / 0.03) 0%, transparent 60%);
   }
   html {
     @apply font-sans;
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.26 0.012 255) transparent;
   }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.26 0.012 255);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.32 0.015 255);
+  }
+}
+
+/* Auction-specific animation keyframes */
+@keyframes bid-flash {
+  0% { background-color: oklch(0.73 0.130 82 / 0.18); border-color: oklch(0.73 0.130 82 / 0.6); }
+  100% { background-color: transparent; border-color: oklch(0.26 0.012 255); }
+}
+
+@keyframes timer-tick {
+  0% { opacity: 1; }
+  10% { opacity: 0.7; }
+  20% { opacity: 1; }
+}
+
+@keyframes popcorn-flash {
+  0%, 100% { color: inherit; }
+  50% { color: oklch(0.73 0.130 82); filter: drop-shadow(0 0 8px oklch(0.73 0.130 82 / 0.8)); }
+}
+
+@keyframes urgent-pulse {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px oklch(0.65 0.20 22 / 0.6)); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 12px oklch(0.65 0.20 22 / 0.9)); }
+}
+
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes winning-glow {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.65 0.17 142 / 0); }
+  50% { box-shadow: 0 0 20px 2px oklch(0.65 0.17 142 / 0.25); }
+}
+
+@keyframes outbid-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.animate-bid-flash {
+  animation: bid-flash 1.8s ease-out forwards;
+}
+.animate-timer-tick {
+  animation: timer-tick 1s ease-in-out;
+}
+.animate-urgent-pulse {
+  animation: urgent-pulse 1.4s ease-in-out infinite;
+}
+.animate-winning-glow {
+  animation: winning-glow 2s ease-in-out infinite;
+}
+.animate-outbid-shake {
+  animation: outbid-shake 0.5s ease-out;
 }

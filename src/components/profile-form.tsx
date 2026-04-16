@@ -27,25 +27,31 @@ export function ProfileForm({ user }: ProfileFormProps) {
     })
   }
 
+  const hasChanged = name !== user.name
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label htmlFor="name" className="text-sm font-medium">
+        <label htmlFor="display-name" className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
           Display Name
         </label>
         <Input
-          id="name"
+          id="display-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           disabled={isPending}
-          className="bg-transparent border-white/20"
+          className="bg-transparent border-white/15 focus:border-[var(--gold)]/50 transition-colors"
         />
+        <p className="text-xs text-muted-foreground/50">
+          This name appears next to your bids in auction feeds.
+        </p>
       </div>
       <Button
         type="submit"
-        disabled={isPending || name === user.name}
+        disabled={isPending || !hasChanged}
         size="sm"
+        className="font-semibold disabled:opacity-40"
       >
         {isPending ? 'Saving…' : 'Save Changes'}
       </Button>

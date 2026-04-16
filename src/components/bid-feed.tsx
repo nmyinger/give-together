@@ -1,7 +1,6 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { formatCurrency, formatRelativeTime } from '@/lib/utils'
 import type { Bid } from '@/types/database'
 
@@ -14,59 +13,76 @@ interface BidFeedProps {
 export function BidFeed({ bids, userNames, currentUserId }: BidFeedProps) {
   if (bids.length === 0) {
     return (
-      <div className="text-center py-10 text-muted-foreground text-sm">
-        No bids yet. Be the first!
+      <div className="flex flex-col items-center justify-center py-12 space-y-2 text-center">
+        <span className="text-2xl text-muted-foreground/20">◆</span>
+        <p className="text-sm text-muted-foreground">No bids yet</p>
+        <p className="text-xs text-muted-foreground/60">Be the first to place a bid</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 scrollbar-thin">
+    <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
       <AnimatePresence initial={false}>
         {bids.map((bid, index) => {
           const name = userNames.get(bid.user_id) ?? 'Anonymous'
           const isCurrentUser = bid.user_id === currentUserId
           const isHighest = index === 0
+          const initial = (name || 'A').charAt(0).toUpperCase()
 
           return (
             <motion.div
               key={bid.id}
-              initial={{ opacity: 0, y: -12, scale: 0.97 }}
+              initial={{ opacity: 0, y: -16, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className={`flex items-center justify-between rounded-lg px-3 py-2.5 ${
-                isHighest
-                  ? 'bg-white/10 border border-white/20'
-                  : 'bg-white/[0.03] border border-transparent'
-              }`}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className={`
+                flex items-center gap-3 rounded-lg px-3 py-2.5 border transition-colors
+                ${isHighest
+                  ? 'bg-[var(--gold)]/8 border-[var(--gold)]/25'
+                  : 'bg-white/[0.02] border-white/5'
+                }
+              `}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Avatar className="h-7 w-7 shrink-0">
-                  <AvatarFallback className="text-xs bg-white/10">
-                    {name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium leading-none truncate">
-                    {isCurrentUser ? (
-                      <span className="text-primary">You</span>
-                    ) : (
-                      name
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {formatRelativeTime(bid.created_at)}
-                  </p>
-                </div>
+              {/* Avatar */}
+              <div
+                className={`
+                  h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
+                  ${isCurrentUser
+                    ? 'bg-[var(--gold)]/20 text-[var(--gold)] ring-1 ring-[var(--gold)]/40'
+                    : 'bg-white/8 text-foreground/70'
+                  }
+                `}
+              >
+                {initial}
               </div>
 
-              <div className="text-right shrink-0 ml-3">
-                <p className={`text-sm font-bold tabular-nums ${isHighest ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {/* Name + time */}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium leading-none truncate">
+                  {isCurrentUser ? (
+                    <span className="text-[var(--gold)]">You</span>
+                  ) : (
+                    <span className="text-foreground/90">{name}</span>
+                  )}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {formatRelativeTime(bid.created_at)}
+                </p>
+              </div>
+
+              {/* Amount */}
+              <div className="text-right shrink-0">
+                <p className={`
+                  text-sm font-bold tabular-nums leading-none
+                  ${isHighest ? 'text-[var(--gold)]' : 'text-foreground/60'}
+                `}>
                   {formatCurrency(bid.amount)}
                 </p>
                 {isHighest && (
-                  <p className="text-[10px] text-green-400 uppercase tracking-wide font-medium">
-                    Highest
+                  <p className="text-[9px] text-[var(--gold)]/60 uppercase tracking-wider font-semibold mt-0.5">
+                    Leading
                   </p>
                 )}
               </div>

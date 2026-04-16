@@ -2,8 +2,6 @@
 
 import { useMemo } from 'react'
 import Image from 'next/image'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { BidFeed } from '@/components/bid-feed'
 import { BidForm } from '@/components/bid-form'
 import { CountdownTimer } from '@/components/countdown-timer'
@@ -26,16 +24,11 @@ export function BiddingRoom({
   currentUser,
   isAuthenticated,
 }: BiddingRoomProps) {
-  // Live auction state — updates when popcorn extension fires or auction closes
   const auction = useRealtimeAuction(initialAuction)
-  // Live bid feed — updates with every new bid
-  const bids = useRealtimeBids(auction.id, initialBids)
+  const { bids, isReconnecting } = useRealtimeBids(auction.id, initialBids)
 
-  // Build a name map from the initial bids data so we can display bidder names
   const userNames = useMemo(() => {
     const map = new Map<string, string>()
-    // The initial bids already have user names from the server-side join
-    // For new realtime bids, we'll add names as we encounter them
     initialBids.forEach((bid) => {
       // @ts-expect-error — server side joins users.name onto the bid
       if (bid.users?.name) map.set(bid.user_id, bid.users.name)
@@ -50,15 +43,25 @@ export function BiddingRoom({
     ? auction.current_max_bid
     : auction.starting_price
 
+  const isLive = auction.status === 'active'
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      {/* Reconnecting indicator */}
+      {isReconnecting && (
+        <div className="mb-4 flex items-center gap-2 text-xs text-amber-400 border border-amber-400/20 bg-amber-400/5 rounded-lg px-3 py-2 w-fit">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
+          Reconnecting to live auction…
+        </div>
+      )}
 
-        {/* Left column: auction info + bid feed */}
-        <div className="lg:col-span-3 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+
+        {/* ── Left column: context ── */}
+        <div className="lg:col-span-3 space-y-7">
 
           {/* Hero image */}
-          <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
+          <div className="relative aspect-video rounded-xl overflow-hidden border border-white/8">
             <Image
               src={auction.image_url}
               alt={auction.celebrity_name}
@@ -67,37 +70,47 @@ export function BiddingRoom({
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 60vw"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
             {auction.status === 'closed' && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Badge variant="secondary" className="text-base px-4 py-2">
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                <span className="text-sm font-semibold tracking-widest uppercase text-white/60 border border-white/20 px-4 py-2 rounded-full">
                   Auction Ended
-                </Badge>
+                </span>
+              </div>
+            )}
+
+            {isLive && (
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-green-400/40 bg-black/70 text-green-400 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                Live Auction
               </div>
             )}
           </div>
 
-          {/* Celebrity & description */}
-          <div className="space-y-2">
+          {/* Celebrity info */}
+          <div className="space-y-3">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold">{auction.celebrity_name}</h1>
-                <p className="text-muted-foreground">{auction.celebrity_title}</p>
+                <h1 className="font-display italic text-3xl md:text-4xl text-foreground leading-tight">
+                  {auction.celebrity_name}
+                </h1>
+                <p className="text-muted-foreground text-sm tracking-widest uppercase mt-1">
+                  {auction.celebrity_title}
+                </p>
               </div>
-              {auction.status === 'active' && (
-                <Badge variant="outline" className="border-green-400/50 text-green-400 shrink-0">
-                  Live
-                </Badge>
-              )}
             </div>
-            <p className="text-muted-foreground leading-relaxed">{auction.description}</p>
+            <p className="text-muted-foreground leading-relaxed text-sm">
+              {auction.description}
+            </p>
             <p className="text-sm">
-              All proceeds benefit{' '}
+              100% of proceeds benefit{' '}
               {auction.charity_website ? (
                 <a
                   href={auction.charity_website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-foreground font-medium underline underline-offset-2"
+                  className="text-foreground font-medium underline underline-offset-2 hover:text-[var(--gold)] transition-colors"
                 >
                   {auction.charity_name}
                 </a>
@@ -107,14 +120,21 @@ export function BiddingRoom({
             </p>
           </div>
 
-          <Separator className="border-white/10" />
+          {/* Gold divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gradient-to-r from-[var(--gold)]/20 to-transparent" />
+            <span className="text-[var(--gold)]/40 text-xs">◆</span>
+            <div className="flex-1 h-px bg-gradient-to-l from-[var(--gold)]/20 to-transparent" />
+          </div>
 
-          {/* Bid feed */}
+          {/* Bid activity */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold">Bid Activity</h2>
-              <span className="text-sm text-muted-foreground">
-                {auction.bid_count} bid{auction.bid_count !== 1 ? 's' : ''}
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                Bid Activity
+              </h2>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {auction.bid_count} {auction.bid_count === 1 ? 'bid' : 'bids'}
               </span>
             </div>
             <BidFeed
@@ -125,33 +145,56 @@ export function BiddingRoom({
           </div>
         </div>
 
-        {/* Right column: sticky bid panel */}
+        {/* ── Right column: live bid panel ── */}
         <div className="lg:col-span-2">
-          <div className="lg:sticky lg:top-24 space-y-4">
+          <div className="lg:sticky lg:top-24 space-y-3">
 
-            {/* Live stats */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Live stats card */}
+            <div className="rounded-xl border border-white/10 bg-card p-5 space-y-5">
+
+              {/* Current bid — the star of the show */}
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                  {auction.current_max_bid > 0 ? 'Current bid' : 'Starting bid'}
+                </p>
+                <p
+                  className="font-display italic tabular-nums leading-none"
+                  style={{
+                    fontSize: 'clamp(2.2rem, 5vw, 3.2rem)',
+                    color: 'var(--gold)',
+                    textShadow: '0 0 40px oklch(0.73 0.130 82 / 0.35)',
+                  }}
+                >
+                  {formatCurrency(currentBid)}
+                </p>
+              </div>
+
+              {/* Timer */}
+              {isLive && (
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                    {auction.current_max_bid > 0 ? 'Current bid' : 'Starting bid'}
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
+                    Time remaining
                   </p>
-                  <p className="text-2xl font-bold tabular-nums">{formatCurrency(currentBid)}</p>
+                  <CountdownTimer endTime={auction.end_time} size="xl" />
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                    {auction.status === 'active' ? 'Ends in' : 'Ended'}
-                  </p>
-                  {auction.status === 'active' ? (
-                    <CountdownTimer endTime={auction.end_time} size="lg" />
-                  ) : (
-                    <p className="text-2xl font-bold text-muted-foreground">—</p>
+              )}
+
+              {!isLive && (
+                <div className="pt-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest">Auction ended</p>
+                  {auction.winner_id && currentUser?.id === auction.winner_id && (
+                    <p className="text-sm font-semibold text-green-400 mt-1">
+                      You won with {formatCurrency(currentBid)}
+                    </p>
                   )}
                 </div>
-              </div>
+              )}
+
+              {/* Divider with bid count */}
+              <div className="h-px bg-white/6" />
             </div>
 
-            {/* Status banner (outbid / winning) */}
+            {/* Status banner */}
             <AuctionStatusBanner
               auction={auction}
               bids={bids}

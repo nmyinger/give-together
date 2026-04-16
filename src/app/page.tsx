@@ -2,12 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { FeaturedAuction } from '@/components/featured-auction'
 import { AuctionGrid } from '@/components/auction-grid'
 
-export const revalidate = 60 // revalidate every 60s
+export const revalidate = 60
 
 export default async function HomePage() {
   const supabase = await createClient()
 
-  // Fetch featured auction
   const { data: featured } = await supabase
     .from('auctions')
     .select('*')
@@ -15,7 +14,6 @@ export default async function HomePage() {
     .eq('status', 'active')
     .single()
 
-  // Fetch all active auctions (excluding the featured one)
   const { data: auctions } = await supabase
     .from('auctions')
     .select('*')
@@ -25,12 +23,29 @@ export default async function HomePage() {
   const otherAuctions = (auctions ?? []).filter((a) => a.id !== featured?.id)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-14">
+
+      {/* Hero */}
       {featured && <FeaturedAuction auction={featured} />}
+
+      {/* Auction grid */}
       <AuctionGrid
         auctions={otherAuctions}
         title={featured ? 'More Auctions' : 'Live Auctions'}
       />
+
+      {/* Empty state if nothing at all */}
+      {!featured && otherAuctions.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
+          <span className="text-4xl text-[var(--gold)]/20">◆</span>
+          <div className="space-y-1">
+            <p className="font-display italic text-xl text-foreground/60">No live auctions</p>
+            <p className="text-sm text-muted-foreground">
+              New auctions are added regularly. Check back soon.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

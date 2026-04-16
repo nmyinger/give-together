@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Bid } from '@/types/database'
 
@@ -8,7 +8,19 @@ const MAX_BIDS = 50
 
 export function useRealtimeBids(auctionId: string, initialBids: Bid[]) {
   const [bids, setBids] = useState<Bid[]>(initialBids)
+  const [isReconnecting, setIsReconnecting] = useState(false)
   const supabase = useRef(createClient())
+
+  // On reconnect: refetch latest bids to fill any gaps from the disconnect window
+  const refetchBids = useCallback(async () => {
+    const { data } = await supabase.current
+      .from('bids')
+      .select('*')
+      .eq('auction_id', auctionId)
+      .order('amount', { ascending: false })
+      .limit(MAX_BIDS)
+    if (data) setBids(data)
+  }, [auctionId])
 
   useEffect(() => {
     const client = supabase.current
@@ -28,12 +40,28 @@ export function useRealtimeBids(auctionId: string, initialBids: Bid[]) {
           setBids((prev) => [newBid, ...prev].slice(0, MAX_BIDS))
         }
       )
+      .on('system', {}, (status) => {
+        if (status.status === 'SUBSCRIBED') {
+          if (isReconnecting) {
+            setIsReconnecting(false)
+            // Refetch to fill the gap from the disconnect window
+            refetchBids()
+          }
+        }
+        if (status.status === 'CHANNEL_ERROR' || status.status === 'TIMED_OUT') {
+          setIsReconnecting(true)
+        }
+        if (status.status === 'CLOSED') {
+          setIsReconnecting(true)
+        }
+      })
       .subscribe()
 
     return () => {
       client.removeChannel(channel)
     }
-  }, [auctionId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auctionId, refetchBids])
 
-  return bids
+  return { bids, isReconnecting }
 }
