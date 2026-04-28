@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { BackButton } from '@/components/back-button'
 
 export const metadata = {
   title: 'Page Not Found — CharityBid',
@@ -48,19 +49,7 @@ export default function NotFound() {
           >
             View Live Auctions
           </Link>
-          <Link
-            href="/"
-            className={cn(
-              buttonVariants({ variant: 'ghost', size: 'sm' }),
-              'text-muted-foreground hover:text-foreground'
-            )}
-            onClick={(e) => {
-              e.preventDefault()
-              if (typeof window !== 'undefined') window.history.back()
-            }}
-          >
-            ← Go back
-          </Link>
+          <BackButton />
         </div>
       </div>
     </div>
