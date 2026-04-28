@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendPaymentFailedEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -45,12 +46,29 @@ export async function POST(request: Request) {
     case 'payment_intent.payment_failed': {
       const pi = event.data.object
       const auctionId = pi.metadata?.auction_id
-      if (auctionId) {
+      const winnerUserId = pi.metadata?.winner_user_id
+      if (auctionId && winnerUserId) {
         console.error(
           `[webhook] PaymentIntent FAILED for auction ${auctionId}: ${pi.id}`,
           pi.last_payment_error?.message
         )
-        // TODO V2: trigger runner-up flow or admin alert
+        const { data: auction } = await supabase
+          .from('auctions')
+          .select('celebrity_name, celebrity_title')
+          .eq('id', auctionId)
+          .single()
+        const { data: authUser } = await supabase.auth.admin.getUserById(winnerUserId)
+        const { data: profile } = await supabase.from('users').select('name').eq('id', winnerUserId).single()
+        if (authUser?.user?.email && auction) {
+          await sendPaymentFailedEmail(supabase, {
+            winnerEmail: authUser.user.email,
+            winnerName: profile?.name ?? '',
+            auctionName: `${auction.celebrity_name} — ${auction.celebrity_title}`,
+            amount: pi.amount,
+            userId: winnerUserId,
+            auctionId,
+          })
+        }
       }
       break
     }

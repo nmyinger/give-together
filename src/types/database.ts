@@ -251,6 +251,81 @@ export type Database = {
           },
         ]
       }
+      win_scheduling: {
+        Row: {
+          id: string
+          auction_id: string
+          winner_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          availability: string
+          timezone: string | null
+          notes: string | null
+          status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          admin_notes: string | null
+          scheduled_for: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          auction_id: string
+          winner_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          availability?: string
+          timezone?: string | null
+          notes?: string | null
+          status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          admin_notes?: string | null
+          scheduled_for?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          auction_id?: string
+          winner_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          availability?: string
+          timezone?: string | null
+          notes?: string | null
+          status?: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+          admin_notes?: string | null
+          scheduled_for?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_log: {
+        Row: {
+          id: string
+          type: string
+          user_id: string | null
+          auction_id: string | null
+          sent_at: string
+          metadata: Record<string, unknown> | null
+        }
+        Insert: {
+          id?: string
+          type: string
+          user_id?: string | null
+          auction_id?: string | null
+          sent_at?: string
+          metadata?: Record<string, unknown> | null
+        }
+        Update: {
+          id?: string
+          type?: string
+          user_id?: string | null
+          auction_id?: string | null
+          sent_at?: string
+          metadata?: Record<string, unknown> | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -412,3 +487,6 @@ export type ProxyBid = Tables<'proxy_bids'>
 export type BidWithUser = Bid & {
   users: Pick<User, 'id' | 'name' | 'avatar_url'>
 }
+
+export type WinScheduling = Tables<'win_scheduling'>
+export type NotificationLog = Tables<'notification_log'>

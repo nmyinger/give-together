@@ -67,14 +67,17 @@ export default async function AccountPage() {
           </p>
         </Link>
 
-        <div className="rounded-xl border border-border bg-card p-4 text-center">
-          <p className="text-2xl font-bold tabular-nums text-foreground">
+        <Link
+          href="/account/wins"
+          className="rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all duration-200 p-4 group text-center"
+        >
+          <p className="text-2xl font-bold tabular-nums text-foreground group-hover:text-primary transition-colors">
             {wonCount ?? 0}
           </p>
           <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">
             Auctions won
           </p>
-        </div>
+        </Link>
 
         <Link
           href="/"
@@ -105,6 +108,12 @@ export default async function AccountPage() {
           className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           Watchlist
+        </Link>
+        <Link
+          href="/account/wins"
+          className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Wins
         </Link>
       </div>
 

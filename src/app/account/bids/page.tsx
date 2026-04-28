@@ -71,15 +71,18 @@ export default async function MyBidsPage() {
 
       {/* Tab navigation */}
       <div className="flex border-b border-border mb-6 gap-1">
-        <Link
-          href="/account"
-          className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <Link href="/account" className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           Settings
         </Link>
         <span className="px-4 py-2.5 text-sm font-semibold text-foreground border-b-2 border-foreground -mb-px">
           Bid history
         </span>
+        <Link href="/account/watchlist" className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Watchlist
+        </Link>
+        <Link href="/account/wins" className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Wins
+        </Link>
       </div>
 
       {allBids.length === 0 ? (
