@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { formatCurrency } from '@/lib/utils'
 import { CloseAuctionButton } from '@/components/admin/close-auction-button'
 import { SeedButton } from '@/components/admin/seed-button'
+import { ToggleAdminButton } from '@/components/admin/toggle-admin-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,14 +28,18 @@ export default async function AdminPage() {
   const adminKey = process.env.ADMIN_SECRET ?? ''
   const supabase = createAdminClient()
 
-  const [{ data: auctions }, { count: totalBids }, { count: totalUsers }] = await Promise.all([
+  const [{ data: auctions }, { data: users }, { count: totalBids }] = await Promise.all([
     supabase
       .from('auctions')
       .select('*')
       .order('created_at', { ascending: false }),
+    supabase
+      .from('users')
+      .select('id, name, is_admin, has_payment_method, created_at')
+      .order('created_at', { ascending: true }),
     supabase.from('bids').select('*', { count: 'exact', head: true }),
-    supabase.from('users').select('*', { count: 'exact', head: true }),
   ])
+  const totalUsers = (users ?? []).length
 
   const active = (auctions ?? []).filter((a) => a.status === 'active')
   const closed = (auctions ?? []).filter((a) => a.status === 'closed')
@@ -114,6 +119,47 @@ export default async function AdminPage() {
                 </Link>
                 <CloseAuctionButton auctionId={auction.id} adminKey={adminKey} />
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Users */}
+      <section className="space-y-4">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Users ({totalUsers})
+        </h2>
+        <div className="rounded-xl border border-white/8 bg-card overflow-hidden">
+          {(users ?? []).map((u, i) => (
+            <div
+              key={u.id}
+              className={[
+                'flex items-center gap-3 px-4 py-3',
+                i > 0 ? 'border-t border-white/5' : '',
+              ].join(' ')}
+            >
+              <div className="w-7 h-7 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/20 flex items-center justify-center shrink-0">
+                <span className="text-[11px] font-bold text-[var(--gold)]">
+                  {(u.name || '?').charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground truncate">{u.name || <span className="text-muted-foreground italic">No name</span>}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  {u.is_admin && (
+                    <span className="text-[9px] font-semibold text-[var(--gold)] uppercase tracking-widest">Admin</span>
+                  )}
+                  {u.has_payment_method && (
+                    <span className="text-[9px] text-green-400/70 uppercase tracking-widest">Payment on file</span>
+                  )}
+                </div>
+              </div>
+              <ToggleAdminButton
+                userId={u.id}
+                userName={u.name || 'this user'}
+                isAdmin={u.is_admin}
+                isSelf={u.id === user.id}
+              />
             </div>
           ))}
         </div>
