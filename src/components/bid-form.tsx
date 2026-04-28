@@ -71,25 +71,25 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
 
   if (auction.status === 'closed') {
     return (
-      <div className="rounded-xl border border-white/8 bg-card p-5 text-center space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">This auction has ended</p>
-        <p className="text-xs text-muted-foreground/60">Thank you to all who participated</p>
+      <div className="rounded-2xl border border-border bg-card p-5 text-center space-y-1 shadow-sm">
+        <p className="text-sm font-medium text-foreground">This auction has ended</p>
+        <p className="text-xs text-muted-foreground">Thank you to all who participated</p>
       </div>
     )
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="rounded-xl border border-white/8 bg-card p-5 space-y-3 text-center">
-        <div className="space-y-1">
-          <p className="text-sm font-medium">Sign in to place a bid</p>
-          <p className="text-xs text-muted-foreground">Magic link — no password required</p>
+      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+        <div className="text-center space-y-1">
+          <p className="text-sm font-semibold text-foreground">Sign in to place a bid</p>
+          <p className="text-xs text-muted-foreground">No password required — we use magic links</p>
         </div>
         <Button
-          className="w-full bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/95 font-bold"
+          className="w-full font-semibold shadow-sm"
           onClick={() => router.push('/auth/login')}
         >
-          Sign in to Bid
+          Sign in to bid
         </Button>
       </div>
     )
@@ -97,60 +97,58 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
 
   if (!hasPaymentMethod) {
     return (
-      <div className="rounded-xl border border-[var(--gold)]/20 bg-[var(--gold)]/5 p-5 space-y-3 text-center">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-[var(--gold)]">Add a payment method</p>
+      <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-5 space-y-4 shadow-sm">
+        <div className="text-center space-y-1">
+          <p className="text-sm font-semibold text-foreground">Add a payment method to bid</p>
           <p className="text-xs text-muted-foreground">
             Your card is only charged if you win
           </p>
         </div>
         <Button
-          className="w-full bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/95 font-bold"
+          className="w-full font-semibold shadow-sm"
           onClick={() => router.push('/account')}
         >
-          Add Payment Method
+          Add payment method
         </Button>
       </div>
     )
   }
 
   return (
-    <div className="rounded-xl border border-white/8 bg-card p-5 space-y-4">
+    <div className="rounded-2xl border border-border bg-card p-5 space-y-5 shadow-sm">
 
-      {/* Minimum bid label */}
-      <div className="flex items-center justify-between">
+      {/* Minimum bid info */}
+      <div className="flex items-center justify-between p-3 rounded-xl bg-muted">
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Minimum bid</p>
-          <p className="font-display text-xl text-foreground tabular-nums mt-0.5">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Minimum bid</p>
+          <p className="font-display text-lg text-[var(--gold)] tabular-nums leading-none">
             {formatCurrency(minBid)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Increment</p>
-          <p className="text-sm text-muted-foreground tabular-nums mt-0.5">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-0.5">Increment</p>
+          <p className="text-sm font-medium text-muted-foreground tabular-nums">
             +{formatCurrency(auction.min_increment)}
           </p>
         </div>
       </div>
 
-      <div className="h-px bg-white/6" />
-
       {/* Quick bid buttons */}
-      <div className="space-y-1.5">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Quick bid</p>
+      <div className="space-y-2">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Quick bid</p>
         <div className="grid grid-cols-3 gap-2">
           {quickAmounts.map((amount, i) => (
             <button
               key={amount}
               onClick={() => handleBid(amount)}
               disabled={isDisabled}
-              className="group relative overflow-hidden rounded-lg border border-white/12 bg-white/[0.03] px-2 py-3 text-center transition-all duration-200 hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/8 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gold)]/50"
+              className="group relative rounded-xl border border-border bg-card px-2 py-3 text-center transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span className="block text-xs font-bold tabular-nums text-foreground group-hover:text-[var(--gold)] transition-colors">
+              <span className="block text-xs font-bold tabular-nums text-foreground group-hover:text-primary transition-colors">
                 {formatCurrency(amount)}
               </span>
               {i === 0 && (
-                <span className="block text-[9px] text-muted-foreground/60 mt-0.5 tracking-wide uppercase">
+                <span className="block text-[9px] text-muted-foreground mt-0.5 tracking-wide uppercase">
                   Min
                 </span>
               )}
@@ -160,8 +158,8 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
       </div>
 
       {/* Custom amount */}
-      <div className="space-y-1.5">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Custom amount</p>
+      <div className="space-y-2">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Custom amount</p>
         <form onSubmit={handleCustomSubmit} className="flex gap-2">
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium select-none">
@@ -175,22 +173,18 @@ export function BidForm({ auction, isAuthenticated, hasPaymentMethod }: BidFormP
               min={minBid / 100}
               step="1"
               disabled={isDisabled}
-              className="pl-6 bg-transparent border-white/15 focus:border-[var(--gold)]/50 transition-colors"
+              className="pl-6 bg-card"
             />
           </div>
           <Button
             type="submit"
             disabled={isDisabled || !customAmount}
-            className="shrink-0 bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/95 font-bold disabled:opacity-40"
+            className="shrink-0 font-semibold shadow-sm disabled:opacity-40"
           >
             {isPending ? '…' : 'Bid'}
           </Button>
         </form>
       </div>
-
-      <p className="text-[10px] text-muted-foreground/50 text-center">
-        Card only charged if you win. Secure via Stripe.
-      </p>
     </div>
   )
 }

@@ -50,100 +50,65 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Gold accent used across the auction UI */
+/* Gold accent for monetary values */
 :root {
-  --gold: oklch(0.73 0.130 82);
-  --gold-muted: oklch(0.73 0.130 82 / 60%);
+  --gold: oklch(0.60 0.140 74);
+  --gold-muted: oklch(0.60 0.140 74 / 55%);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Warm cream base */
+  --background: oklch(0.975 0.007 70);
+  --foreground: oklch(0.17 0.015 260);
+
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.17 0.015 260);
+
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.73 0.130 82);
-  --primary-foreground: oklch(0.11 0.010 255);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.73 0.130 82);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --popover-foreground: oklch(0.17 0.015 260);
 
-.dark {
-  /* Warm midnight navy — not pure black, not cold grey */
-  --background: oklch(0.11 0.010 255);
-  --foreground: oklch(0.965 0.003 80);
+  /* Deep navy primary — trustworthy, platform-grade */
+  --primary: oklch(0.28 0.09 260);
+  --primary-foreground: oklch(1 0 0);
 
-  --card: oklch(0.155 0.010 255);
-  --card-foreground: oklch(0.965 0.003 80);
+  --secondary: oklch(0.93 0.010 255);
+  --secondary-foreground: oklch(0.28 0.09 260);
 
-  --popover: oklch(0.16 0.010 255);
-  --popover-foreground: oklch(0.965 0.003 80);
+  --muted: oklch(0.945 0.006 70);
+  --muted-foreground: oklch(0.50 0.010 260);
 
-  /* Signature amber-gold primary */
-  --primary: oklch(0.73 0.130 82);
-  --primary-foreground: oklch(0.11 0.010 255);
+  --accent: oklch(0.925 0.015 255);
+  --accent-foreground: oklch(0.25 0.08 260);
 
-  --secondary: oklch(0.20 0.010 255);
-  --secondary-foreground: oklch(0.965 0.003 80);
+  --destructive: oklch(0.55 0.22 27);
 
-  --muted: oklch(0.20 0.010 255);
-  --muted-foreground: oklch(0.57 0.006 80);
+  --border: oklch(0.875 0.008 255);
+  --input: oklch(0.945 0.005 255);
+  --ring: oklch(0.28 0.09 260);
 
-  --accent: oklch(0.22 0.010 255);
-  --accent-foreground: oklch(0.965 0.003 80);
+  --chart-1: oklch(0.60 0.140 74);
+  --chart-2: oklch(0.55 0.15 175);
+  --chart-3: oklch(0.55 0.18 260);
+  --chart-4: oklch(0.60 0.18 30);
+  --chart-5: oklch(0.55 0.15 300);
 
-  --destructive: oklch(0.65 0.20 22);
+  --radius: 0.75rem;
 
-  --border: oklch(0.26 0.012 255);
-  --input: oklch(0.22 0.010 255);
-
-  /* Gold focus ring */
-  --ring: oklch(0.73 0.130 82);
-
-  --chart-1: oklch(0.73 0.130 82);
-  --chart-2: oklch(0.65 0.10 180);
-  --chart-3: oklch(0.58 0.12 260);
-  --chart-4: oklch(0.72 0.15 50);
-  --chart-5: oklch(0.60 0.15 300);
-
-  --sidebar: oklch(0.155 0.010 255);
-  --sidebar-foreground: oklch(0.965 0.003 80);
-  --sidebar-primary: oklch(0.73 0.130 82);
-  --sidebar-primary-foreground: oklch(0.11 0.010 255);
-  --sidebar-accent: oklch(0.22 0.010 255);
-  --sidebar-accent-foreground: oklch(0.965 0.003 80);
-  --sidebar-border: oklch(0.26 0.012 255);
-  --sidebar-ring: oklch(0.73 0.130 82);
+  --sidebar: oklch(0.975 0.007 70);
+  --sidebar-foreground: oklch(0.17 0.015 260);
+  --sidebar-primary: oklch(0.28 0.09 260);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.925 0.015 255);
+  --sidebar-accent-foreground: oklch(0.25 0.08 260);
+  --sidebar-border: oklch(0.875 0.008 255);
+  --sidebar-ring: oklch(0.28 0.09 260);
 }
 
 /* Auction-specific semantic tokens */
 :root {
-  --bid-highlight: oklch(0.73 0.130 82);
+  --bid-highlight: oklch(0.60 0.140 74);
   --urgent: hsl(0, 72%, 51%);
-  --winning: hsl(142, 71%, 45%);
+  --winning: hsl(142, 71%, 38%);
   --outbid: hsl(0, 72%, 51%);
 }
 
@@ -154,13 +119,13 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.73 0.130 82 / 0.04) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 110%, oklch(0.58 0.12 260 / 0.03) 0%, transparent 60%);
+      radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.60 0.140 74 / 0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, oklch(0.55 0.15 175 / 0.02) 0%, transparent 60%);
   }
   html {
     @apply font-sans;
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.26 0.012 255) transparent;
+    scrollbar-color: oklch(0.82 0.008 255) transparent;
   }
   ::-webkit-scrollbar {
     width: 6px;
@@ -170,44 +135,39 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: oklch(0.26 0.012 255);
+    background: oklch(0.82 0.008 255);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.32 0.015 255);
+    background: oklch(0.72 0.010 255);
   }
 }
 
-/* Auction-specific animation keyframes */
+/* Auction animation keyframes */
 @keyframes bid-flash {
-  0% { background-color: oklch(0.73 0.130 82 / 0.18); border-color: oklch(0.73 0.130 82 / 0.6); }
-  100% { background-color: transparent; border-color: oklch(0.26 0.012 255); }
+  0% { background-color: oklch(0.60 0.140 74 / 0.12); border-color: oklch(0.60 0.140 74 / 0.4); }
+  100% { background-color: transparent; border-color: oklch(0.875 0.008 255); }
 }
 
 @keyframes timer-tick {
   0% { opacity: 1; }
-  10% { opacity: 0.7; }
+  10% { opacity: 0.65; }
   20% { opacity: 1; }
 }
 
-@keyframes popcorn-flash {
-  0%, 100% { color: inherit; }
-  50% { color: oklch(0.73 0.130 82); filter: drop-shadow(0 0 8px oklch(0.73 0.130 82 / 0.8)); }
-}
-
 @keyframes urgent-pulse {
-  0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px oklch(0.65 0.20 22 / 0.6)); }
-  50% { opacity: 0.85; filter: drop-shadow(0 0 12px oklch(0.65 0.20 22 / 0.9)); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
 }
 
 @keyframes slide-up-fade {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes winning-glow {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.65 0.17 142 / 0); }
-  50% { box-shadow: 0 0 20px 2px oklch(0.65 0.17 142 / 0.25); }
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.55 0.18 155 / 0); }
+  50% { box-shadow: 0 0 20px 4px oklch(0.55 0.18 155 / 0.15); }
 }
 
 @keyframes outbid-shake {
@@ -218,6 +178,11 @@
   80% { transform: translateX(2px); }
 }
 
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.94) translateY(4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 .animate-bid-flash {
   animation: bid-flash 1.8s ease-out forwards;
 }
@@ -225,11 +190,14 @@
   animation: timer-tick 1s ease-in-out;
 }
 .animate-urgent-pulse {
-  animation: urgent-pulse 1.4s ease-in-out infinite;
+  animation: urgent-pulse 1.2s ease-in-out infinite;
 }
 .animate-winning-glow {
   animation: winning-glow 2s ease-in-out infinite;
 }
 .animate-outbid-shake {
   animation: outbid-shake 0.5s ease-out;
+}
+.animate-pop-in {
+  animation: pop-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

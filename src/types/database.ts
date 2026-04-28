@@ -34,6 +34,7 @@ export type Database = {
           slug: string
           starting_price: number
           status: Database["public"]["Enums"]["auction_status"]
+          watch_count: number
           winner_id: string | null
           winning_bid_id: string | null
         }
@@ -56,6 +57,7 @@ export type Database = {
           slug: string
           starting_price?: number
           status?: Database["public"]["Enums"]["auction_status"]
+          watch_count?: number
           winner_id?: string | null
           winning_bid_id?: string | null
         }
@@ -78,6 +80,7 @@ export type Database = {
           slug?: string
           starting_price?: number
           status?: Database["public"]["Enums"]["auction_status"]
+          watch_count?: number
           winner_id?: string | null
           winning_bid_id?: string | null
         }
@@ -104,6 +107,7 @@ export type Database = {
           auction_id: string
           created_at: string
           id: string
+          is_proxy: boolean
           user_id: string
         }
         Insert: {
@@ -111,6 +115,7 @@ export type Database = {
           auction_id: string
           created_at?: string
           id?: string
+          is_proxy?: boolean
           user_id: string
         }
         Update: {
@@ -118,6 +123,7 @@ export type Database = {
           auction_id?: string
           created_at?: string
           id?: string
+          is_proxy?: boolean
           user_id?: string
         }
         Relationships: [
@@ -130,6 +136,48 @@ export type Database = {
           },
           {
             foreignKeyName: "bids_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proxy_bids: {
+        Row: {
+          auction_id: string
+          created_at: string
+          id: string
+          max_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auction_id: string
+          created_at?: string
+          id?: string
+          max_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auction_id?: string
+          created_at?: string
+          id?: string
+          max_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proxy_bids_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proxy_bids_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -167,6 +215,39 @@ export type Database = {
         }
         Relationships: []
       }
+      watchlist: {
+        Row: {
+          auction_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          auction_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          auction_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "auctions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watchlist_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -174,6 +255,14 @@ export type Database = {
     Functions: {
       place_bid: {
         Args: { p_amount: number; p_auction_id: string }
+        Returns: Json
+      }
+      toggle_watchlist: {
+        Args: { p_auction_id: string }
+        Returns: Json
+      }
+      upsert_proxy_bid: {
+        Args: { p_auction_id: string; p_max_amount: number }
         Returns: Json
       }
     }
@@ -315,6 +404,8 @@ export const Constants = {
 export type Auction = Tables<'auctions'>
 export type Bid = Tables<'bids'>
 export type User = Tables<'users'>
+export type WatchlistEntry = Tables<'watchlist'>
+export type ProxyBid = Tables<'proxy_bids'>
 export type BidWithUser = Bid & {
   users: Pick<User, 'id' | 'name' | 'avatar_url'>
 }

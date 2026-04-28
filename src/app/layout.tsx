@@ -65,7 +65,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${dmSerifDisplay.variable} dark antialiased`}
+      className={`${dmSans.variable} ${dmSerifDisplay.variable} antialiased`}
     >
       <body className="min-h-screen bg-background text-foreground flex flex-col">
         <Providers>

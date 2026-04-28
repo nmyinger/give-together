@@ -20,14 +20,14 @@ export function AuctionStatusBanner({ auction, bids, currentUserId }: AuctionSta
     if (auction.winner_id === currentUserId) {
       return (
         <div
-          className="rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-3.5 space-y-0.5"
+          className="rounded-xl border border-green-200 bg-green-50 px-4 py-3.5 space-y-0.5"
           style={{ animation: 'winning-glow 2s ease-in-out infinite' }}
         >
           <div className="flex items-center gap-2">
-            <span className="text-green-400 text-base">◆</span>
-            <p className="text-sm font-bold text-green-400">You won this auction!</p>
+            <span className="text-green-600 text-base">🎉</span>
+            <p className="text-sm font-bold text-green-800">You won this auction!</p>
           </div>
-          <p className="text-xs text-green-400/70 pl-6">
+          <p className="text-xs text-green-700/80 pl-7">
             Winning bid: {formatCurrency(highestBid.amount)} — your card has been charged.
           </p>
         </div>
@@ -39,15 +39,15 @@ export function AuctionStatusBanner({ auction, bids, currentUserId }: AuctionSta
   if (isWinning) {
     return (
       <div
-        className="rounded-xl border border-green-500/25 bg-green-500/8 px-4 py-3"
+        className="rounded-xl border border-green-200 bg-green-50 px-4 py-3"
         style={{ animation: 'winning-glow 2s ease-in-out infinite' }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-            <p className="text-sm font-semibold text-green-400">You&apos;re leading</p>
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+            <p className="text-sm font-semibold text-green-800">You&apos;re leading</p>
           </div>
-          <p className="text-sm font-bold text-green-400 tabular-nums">
+          <p className="text-sm font-bold text-green-700 tabular-nums">
             {formatCurrency(highestBid.amount)}
           </p>
         </div>
@@ -58,19 +58,19 @@ export function AuctionStatusBanner({ auction, bids, currentUserId }: AuctionSta
   if (userHasBid) {
     return (
       <div
-        className="rounded-xl border border-red-500/25 bg-red-500/8 px-4 py-3"
+        className="rounded-xl border border-red-200 bg-red-50 px-4 py-3"
         style={{ animation: 'outbid-shake 0.5s ease-out' }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-red-400" />
-            <p className="text-sm font-semibold text-red-400">You&apos;ve been outbid</p>
+            <span className="h-2 w-2 rounded-full bg-red-500 shrink-0" />
+            <p className="text-sm font-semibold text-red-800">You&apos;ve been outbid</p>
           </div>
-          <p className="text-sm font-bold text-red-400 tabular-nums">
+          <p className="text-sm font-bold text-red-700 tabular-nums">
             {formatCurrency(highestBid.amount)}
           </p>
         </div>
-        <p className="text-xs text-red-400/60 mt-0.5 pl-4">
+        <p className="text-xs text-red-700/70 mt-0.5 pl-4">
           Bid {formatCurrency(highestBid.amount + auction.min_increment)} or more to retake the lead
         </p>
       </div>

@@ -29,7 +29,6 @@ export default async function AuctionPage({ params }: PageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
-  // Fetch the auction
   const { data: auction } = await supabase
     .from('auctions')
     .select('*')
@@ -38,32 +37,35 @@ export default async function AuctionPage({ params }: PageProps) {
 
   if (!auction) notFound()
 
-  // Fetch top 50 bids with user names
-  const { data: bids } = await supabase
-    .from('bids')
-    .select('*, users(id, name, avatar_url)')
-    .eq('auction_id', auction.id)
-    .order('amount', { ascending: false })
-    .limit(50)
-
-  // Fetch current user profile
   const { data: { user: authUser } } = await supabase.auth.getUser()
-  let currentUser = null
-  if (authUser) {
-    const { data } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', authUser.id)
-      .single()
-    currentUser = data
-  }
+
+  // Fetch bids, user profile, watchlist status, and proxy bid in parallel
+  const [bidsResult, currentUserResult, watchlistResult, proxyResult] = await Promise.all([
+    supabase
+      .from('bids')
+      .select('*, users(id, name, avatar_url)')
+      .eq('auction_id', auction.id)
+      .order('amount', { ascending: false })
+      .limit(50),
+    authUser
+      ? supabase.from('users').select('*').eq('id', authUser.id).single()
+      : Promise.resolve({ data: null }),
+    authUser
+      ? supabase.from('watchlist').select('auction_id').eq('user_id', authUser.id).eq('auction_id', auction.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    authUser
+      ? supabase.from('proxy_bids').select('*').eq('user_id', authUser.id).eq('auction_id', auction.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
 
   return (
     <BiddingRoom
       initialAuction={auction}
-      initialBids={(bids ?? []) as Bid[]}
-      currentUser={currentUser}
+      initialBids={(bidsResult.data ?? []) as Bid[]}
+      currentUser={currentUserResult.data ?? null}
       isAuthenticated={!!authUser}
+      isWatched={!!watchlistResult.data}
+      existingProxy={proxyResult.data ?? null}
     />
   )
 }

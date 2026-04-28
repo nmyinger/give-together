@@ -13,101 +13,110 @@ export function FeaturedAuction({ auction }: FeaturedAuctionProps) {
   const currentBid = auction.current_max_bid > 0 ? auction.current_max_bid : auction.starting_price
 
   return (
-    <section className="relative rounded-2xl overflow-hidden border border-white/8 group">
-      {/* Full-bleed image */}
-      <div className="relative aspect-[16/7] min-h-[320px] md:min-h-[420px]">
-        <Image
-          src={auction.image_url}
-          alt={auction.celebrity_name}
-          fill
-          priority
-          className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, 90vw"
-        />
+    <section className="rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-md transition-shadow duration-300 group">
+      <div className="grid grid-cols-1 lg:grid-cols-5">
 
-        {/* Atmospheric overlay — dark at bottom, transparent at top-center */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/60" />
+        {/* Image — 3 of 5 columns */}
+        <div className="relative aspect-[16/10] lg:aspect-auto lg:col-span-3 lg:min-h-[380px] overflow-hidden">
+          <Image
+            src={auction.image_url}
+            alt={auction.celebrity_name}
+            fill
+            priority
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+            sizes="(max-width: 1024px) 100vw, 60vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
 
-        {/* Subtle gold corner accent */}
-        <div className="absolute top-0 left-0 w-32 h-px bg-gradient-to-r from-[var(--gold)]/60 to-transparent" />
-        <div className="absolute top-0 left-0 w-px h-32 bg-gradient-to-b from-[var(--gold)]/60 to-transparent" />
-
-        {/* Top badges */}
-        <div className="absolute top-5 left-5 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border border-[var(--gold)]/50 bg-black/60 text-[var(--gold)] backdrop-blur-sm">
-            <span className="text-[9px]">◆</span>
-            Featured
-          </span>
-          {auction.status === 'active' && (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-green-400/40 bg-black/60 text-green-400 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-              Live
+          {/* Badges */}
+          <div className="absolute top-4 left-4 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-[var(--gold)]/60 bg-black/50 text-[var(--gold)] backdrop-blur-sm">
+              ♦ Featured
             </span>
-          )}
-        </div>
-
-        {/* Bottom content overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-
-            {/* Left: identity */}
-            <div className="space-y-1 max-w-lg">
-              <p className="text-xs tracking-[0.2em] uppercase text-white/50 font-medium">
-                {auction.celebrity_title}
-              </p>
-              <h1 className="font-display italic text-4xl md:text-5xl text-white leading-tight drop-shadow-2xl">
-                {auction.celebrity_name}
-              </h1>
-              <p className="text-sm text-white/60 mt-2">
-                100% of proceeds benefit{' '}
-                <span className="text-white/90 font-medium">{auction.charity_name}</span>
-              </p>
-            </div>
-
-            {/* Right: stats + CTA */}
-            <div className="flex flex-col items-start md:items-end gap-4 shrink-0">
-              {/* Bid stats row */}
-              <div className="flex items-end gap-6">
-                <div className="text-left md:text-right">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">
-                    {auction.current_max_bid > 0 ? 'Current bid' : 'Starting bid'}
-                  </p>
-                  <p className="font-display text-3xl md:text-4xl text-[var(--gold)] tabular-nums leading-none"
-                     style={{ textShadow: '0 0 40px oklch(0.73 0.130 82 / 0.4)' }}>
-                    {formatCurrency(currentBid)}
-                  </p>
-                </div>
-
-                {auction.status === 'active' && (
-                  <div className="text-left md:text-right">
-                    <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">
-                      Ends in
-                    </p>
-                    <CountdownTimer endTime={auction.end_time} size="lg" />
-                  </div>
-                )}
-              </div>
-
-              {/* CTA */}
-              <Link
-                href={`/auctions/${auction.slug}`}
-                className={cn(
-                  buttonVariants({ size: 'lg' }),
-                  'bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/95 font-bold shadow-2xl shadow-[var(--gold)]/25 min-w-[180px] transition-all duration-200 hover:shadow-[var(--gold)]/40 hover:scale-[1.02]'
-                )}
-              >
-                {auction.status === 'active' ? 'Place a Bid →' : 'View Auction'}
-              </Link>
-            </div>
+            {auction.status === 'active' && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border border-white/30 bg-black/50 text-white backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                Live
+              </span>
+            )}
           </div>
 
-          {/* Bid count subtle info */}
-          {auction.bid_count > 0 && (
-            <p className="mt-3 text-xs text-white/30">
-              {auction.bid_count} {auction.bid_count === 1 ? 'bid' : 'bids'} placed
+          {/* Name overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <p className="text-[10px] tracking-[0.18em] uppercase text-white/60 font-medium mb-0.5">
+              {auction.celebrity_title}
             </p>
-          )}
+            <h1 className="font-display italic text-3xl md:text-4xl text-white leading-tight drop-shadow-lg">
+              {auction.celebrity_name}
+            </h1>
+          </div>
+        </div>
+
+        {/* Detail panel — 2 of 5 columns */}
+        <div className="lg:col-span-2 p-6 lg:p-8 flex flex-col gap-6 justify-between">
+
+          {/* Charity + description */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+              <span className="text-xs font-semibold text-green-700 uppercase tracking-wide">Live auction</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              100% of proceeds benefit{' '}
+              {auction.charity_website ? (
+                <a
+                  href={auction.charity_website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-foreground underline underline-offset-2 hover:text-[var(--gold)] transition-colors"
+                >
+                  {auction.charity_name}
+                </a>
+              ) : (
+                <span className="font-semibold text-foreground">{auction.charity_name}</span>
+              )}
+            </p>
+          </div>
+
+          {/* Bid stats card */}
+          <div className="rounded-xl bg-muted p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                  {auction.current_max_bid > 0 ? 'Current bid' : 'Starting bid'}
+                </p>
+                <p className="font-display text-2xl lg:text-3xl text-[var(--gold)] tabular-nums leading-none">
+                  {formatCurrency(currentBid)}
+                </p>
+              </div>
+              {auction.status === 'active' && (
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                    Ends in
+                  </p>
+                  <CountdownTimer endTime={auction.end_time} size="lg" />
+                </div>
+              )}
+            </div>
+
+            {auction.bid_count > 0 && (
+              <p className="text-xs text-muted-foreground border-t border-border pt-3">
+                <span className="font-semibold text-foreground">{auction.bid_count}</span>{' '}
+                {auction.bid_count === 1 ? 'bid' : 'bids'} placed so far
+              </p>
+            )}
+          </div>
+
+          {/* CTA */}
+          <Link
+            href={`/auctions/${auction.slug}`}
+            className={cn(
+              buttonVariants({ size: 'lg' }),
+              'w-full font-semibold shadow-sm'
+            )}
+          >
+            {auction.status === 'active' ? 'Place a bid →' : 'View auction'}
+          </Link>
         </div>
       </div>
     </section>
