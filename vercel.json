@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/close-auctions",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
