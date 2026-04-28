@@ -66,6 +66,12 @@ export function Navbar({ user, profile }: NavbarProps) {
                 >
                   Account
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => router.push('/account/bids')}
+                >
+                  My Bids
+                </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/8" />
                 <DropdownMenuItem
                   className="text-destructive cursor-pointer focus:text-destructive"

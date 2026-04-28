@@ -3,6 +3,7 @@ import { DM_Sans, DM_Serif_Display } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
 import { Navbar } from '@/components/navbar'
+import { Footer } from '@/components/footer'
 import { createClient } from '@/lib/supabase/server'
 
 const dmSans = DM_Sans({
@@ -66,10 +67,11 @@ export default async function RootLayout({
       lang="en"
       className={`${dmSans.variable} ${dmSerifDisplay.variable} dark antialiased`}
     >
-      <body className="min-h-screen bg-background text-foreground">
+      <body className="min-h-screen bg-background text-foreground flex flex-col">
         <Providers>
           <Navbar user={user} profile={profile} />
           <main className="flex-1">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>

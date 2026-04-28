@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { BidFeed } from '@/components/bid-feed'
 import { BidForm } from '@/components/bid-form'
@@ -8,6 +8,7 @@ import { CountdownTimer } from '@/components/countdown-timer'
 import { AuctionStatusBanner } from '@/components/auction-status-banner'
 import { useRealtimeBids } from '@/hooks/use-realtime-bids'
 import { useRealtimeAuction } from '@/hooks/use-realtime-auction'
+import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
 import type { Auction, Bid, User } from '@/types/database'
 
@@ -26,18 +27,53 @@ export function BiddingRoom({
 }: BiddingRoomProps) {
   const auction = useRealtimeAuction(initialAuction)
   const { bids, isReconnecting } = useRealtimeBids(auction.id, initialBids)
+  const supabase = useRef(createClient())
+  const fetchedUserIds = useRef<Set<string>>(new Set())
 
-  const userNames = useMemo(() => {
+  // Build the initial user names map from server-fetched joined data
+  const [userNames, setUserNames] = useState<Map<string, string>>(() => {
     const map = new Map<string, string>()
     initialBids.forEach((bid) => {
-      // @ts-expect-error — server side joins users.name onto the bid
-      if (bid.users?.name) map.set(bid.user_id, bid.users.name)
+      // Server-side join puts users.name on the bid object
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const name = (bid as any).users?.name
+      if (name) {
+        map.set(bid.user_id, name)
+        fetchedUserIds.current.add(bid.user_id)
+      }
     })
     if (currentUser) {
       map.set(currentUser.id, currentUser.name || 'You')
+      fetchedUserIds.current.add(currentUser.id)
     }
     return map
-  }, [initialBids, currentUser])
+  })
+
+  // Whenever new bids arrive via realtime, fetch names for unknown bidders
+  useEffect(() => {
+    const unknownIds = bids
+      .map((b) => b.user_id)
+      .filter((id) => !fetchedUserIds.current.has(id))
+
+    if (unknownIds.length === 0) return
+
+    unknownIds.forEach((id) => fetchedUserIds.current.add(id))
+
+    supabase.current
+      .from('users')
+      .select('id, name')
+      .in('id', unknownIds)
+      .then(({ data }) => {
+        if (!data?.length) return
+        setUserNames((prev) => {
+          const next = new Map(prev)
+          data.forEach((u) => {
+            if (u.name) next.set(u.id, u.name)
+          })
+          return next
+        })
+      })
+  }, [bids])
 
   const currentBid = auction.current_max_bid > 0
     ? auction.current_max_bid
@@ -152,7 +188,7 @@ export function BiddingRoom({
             {/* Live stats card */}
             <div className="rounded-xl border border-white/10 bg-card p-5 space-y-5">
 
-              {/* Current bid — the star of the show */}
+              {/* Current bid */}
               <div>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2">
                   {auction.current_max_bid > 0 ? 'Current bid' : 'Starting bid'}
@@ -190,7 +226,6 @@ export function BiddingRoom({
                 </div>
               )}
 
-              {/* Divider with bid count */}
               <div className="h-px bg-white/6" />
             </div>
 

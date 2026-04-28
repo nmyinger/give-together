@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { FeaturedAuction } from '@/components/featured-auction'
 import { AuctionGrid } from '@/components/auction-grid'
+import { HowItWorks } from '@/components/how-it-works'
 
 export const revalidate = 60
 
@@ -46,6 +47,9 @@ export default async function HomePage() {
           </div>
         </div>
       )}
+
+      {/* How it works */}
+      <HowItWorks />
     </div>
   )
 }

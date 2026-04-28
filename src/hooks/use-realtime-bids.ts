@@ -9,9 +9,9 @@ const MAX_BIDS = 50
 export function useRealtimeBids(auctionId: string, initialBids: Bid[]) {
   const [bids, setBids] = useState<Bid[]>(initialBids)
   const [isReconnecting, setIsReconnecting] = useState(false)
+  const isReconnectingRef = useRef(false)
   const supabase = useRef(createClient())
 
-  // On reconnect: refetch latest bids to fill any gaps from the disconnect window
   const refetchBids = useCallback(async () => {
     const { data } = await supabase.current
       .from('bids')
@@ -42,16 +42,18 @@ export function useRealtimeBids(auctionId: string, initialBids: Bid[]) {
       )
       .on('system', {}, (status) => {
         if (status.status === 'SUBSCRIBED') {
-          if (isReconnecting) {
+          if (isReconnectingRef.current) {
+            isReconnectingRef.current = false
             setIsReconnecting(false)
-            // Refetch to fill the gap from the disconnect window
             refetchBids()
           }
         }
-        if (status.status === 'CHANNEL_ERROR' || status.status === 'TIMED_OUT') {
-          setIsReconnecting(true)
-        }
-        if (status.status === 'CLOSED') {
+        if (
+          status.status === 'CHANNEL_ERROR' ||
+          status.status === 'TIMED_OUT' ||
+          status.status === 'CLOSED'
+        ) {
+          isReconnectingRef.current = true
           setIsReconnecting(true)
         }
       })
@@ -60,7 +62,6 @@ export function useRealtimeBids(auctionId: string, initialBids: Bid[]) {
     return () => {
       client.removeChannel(channel)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auctionId, refetchBids])
 
   return { bids, isReconnecting }
