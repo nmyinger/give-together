@@ -69,7 +69,7 @@ export default async function RootLayout({
     >
       <body className="min-h-screen bg-background text-foreground flex flex-col">
         <Providers>
-          <Navbar user={user} profile={profile} />
+          <Navbar user={user} profile={profile} isAdmin={profile?.is_admin ?? false} />
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>

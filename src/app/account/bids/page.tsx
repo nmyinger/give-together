@@ -16,7 +16,6 @@ export default async function MyBidsPage() {
 
   if (!authUser) redirect('/auth/login?redirectTo=/account/bids')
 
-  // Fetch user's bids with auction data, most recent first
   const { data: bids } = await supabase
     .from('bids')
     .select('*, auctions(id, slug, celebrity_name, celebrity_title, image_url, status, current_max_bid, winner_id, starting_price)')
@@ -24,11 +23,9 @@ export default async function MyBidsPage() {
     .order('created_at', { ascending: false })
     .limit(100)
 
-  // Deduplicate by auction: keep highest bid per auction for the "status" summary
   const auctionMap = new Map<string, typeof bids extends (infer T)[] | null ? T : never>()
   const allBids = bids ?? []
 
-  // Group bids by auction for the summary cards
   const bidsByAuction = new Map<string, typeof allBids>()
   for (const bid of allBids) {
     if (!bid.auctions) continue
@@ -40,7 +37,7 @@ export default async function MyBidsPage() {
     bidsByAuction.get(auctionId)!.push(bid)
   }
 
-  const auctionSummaries = Array.from(bidsByAuction.entries()).map(([auctionId, auctionBids]) => {
+  const auctionSummaries = Array.from(bidsByAuction.entries()).map(([, auctionBids]) => {
     const auction = auctionBids[0].auctions!
     const myHighest = Math.max(...auctionBids.map((b) => b.amount))
     const currentMax = auction.current_max_bid > 0 ? auction.current_max_bid : auction.starting_price
@@ -52,26 +49,42 @@ export default async function MyBidsPage() {
   })
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="font-display italic text-4xl text-foreground">My Bids</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Bid history</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            {allBids.length === 0 ? 'No bids placed yet' : `${allBids.length} bid${allBids.length !== 1 ? 's' : ''} across ${auctionSummaries.length} auction${auctionSummaries.length !== 1 ? 's' : ''}`}
+            {allBids.length === 0
+              ? 'No bids placed yet'
+              : `${allBids.length} bid${allBids.length !== 1 ? 's' : ''} across ${auctionSummaries.length} auction${auctionSummaries.length !== 1 ? 's' : ''}`
+            }
           </p>
         </div>
         <Link
           href="/account"
-          className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'text-muted-foreground')}
+          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
         >
           ← Account
         </Link>
       </div>
 
+      {/* Tab navigation */}
+      <div className="flex border-b border-border mb-6 gap-1">
+        <Link
+          href="/account"
+          className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Settings
+        </Link>
+        <span className="px-4 py-2.5 text-sm font-semibold text-foreground border-b-2 border-foreground -mb-px">
+          Bid history
+        </span>
+      </div>
+
       {allBids.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center space-y-4 rounded-xl border border-white/8 bg-card">
-          <span className="text-4xl text-[var(--gold)]/20">◆</span>
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 rounded-2xl border border-border bg-card shadow-sm">
+          <span className="text-4xl opacity-20">♦</span>
           <div className="space-y-1">
             <p className="font-display italic text-xl text-foreground/60">No bids yet</p>
             <p className="text-sm text-muted-foreground">
@@ -80,43 +93,40 @@ export default async function MyBidsPage() {
           </div>
           <Link
             href="/"
-            className={cn(
-              buttonVariants({ size: 'sm' }),
-              'mt-2 bg-[var(--gold)] text-[oklch(0.11_0.010_255)] hover:bg-[var(--gold)]/90 font-bold'
-            )}
+            className={cn(buttonVariants({ size: 'sm' }), 'mt-2 shadow-sm font-semibold')}
           >
-            View Live Auctions
+            View live auctions
           </Link>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {auctionSummaries.map(({ auction, myHighest, currentMax, isWinner, isLeading, isOutbid, latestBid, bidCount }) => (
             <Link
               key={auction.id}
               href={`/auctions/${auction.slug}`}
-              className="block rounded-xl border border-white/8 bg-card hover:border-[var(--gold)]/30 transition-colors overflow-hidden group"
+              className="block rounded-xl border border-border bg-card hover:shadow-sm hover:border-primary/25 transition-all duration-200 overflow-hidden group"
             >
               <div className="p-4 flex items-center gap-4">
                 {/* Status indicator */}
                 <div className="shrink-0">
                   {isWinner && (
-                    <div className="h-8 w-8 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center">
-                      <span className="text-green-400 text-xs font-bold">✓</span>
+                    <div className="h-9 w-9 rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
+                      <span className="text-green-700 text-sm font-bold">✓</span>
                     </div>
                   )}
                   {isLeading && (
-                    <div className="h-8 w-8 rounded-full bg-[var(--gold)]/15 border border-[var(--gold)]/30 flex items-center justify-center">
-                      <span className="text-[var(--gold)] text-xs">◆</span>
+                    <div className="h-9 w-9 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/25 flex items-center justify-center">
+                      <span className="text-[var(--gold)] text-xs font-bold">↑</span>
                     </div>
                   )}
                   {isOutbid && (
-                    <div className="h-8 w-8 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center">
-                      <span className="text-red-400 text-xs font-bold">↑</span>
+                    <div className="h-9 w-9 rounded-full bg-red-50 border border-red-200 flex items-center justify-center">
+                      <span className="text-red-600 text-sm font-bold">↑</span>
                     </div>
                   )}
                   {auction.status === 'closed' && !isWinner && (
-                    <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                      <span className="text-muted-foreground/50 text-xs">—</span>
+                    <div className="h-9 w-9 rounded-full bg-muted border border-border flex items-center justify-center">
+                      <span className="text-muted-foreground text-xs">—</span>
                     </div>
                   )}
                 </div>
@@ -125,7 +135,7 @@ export default async function MyBidsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-sm font-semibold text-foreground truncate group-hover:text-[var(--gold)] transition-colors">
+                      <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                         {auction.celebrity_name}
                       </p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
@@ -136,17 +146,14 @@ export default async function MyBidsPage() {
                       <p className="text-sm font-bold tabular-nums text-[var(--gold)]">
                         {formatCurrency(myHighest)}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        my highest
-                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">my highest</p>
                     </div>
                   </div>
 
-                  {/* Status row */}
                   <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       {isWinner && (
-                        <span className="text-[10px] font-semibold text-green-400 border border-green-400/30 bg-green-400/8 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                        <span className="text-[10px] font-semibold text-green-700 border border-green-200 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
                           Won
                         </span>
                       )}
@@ -156,17 +163,17 @@ export default async function MyBidsPage() {
                         </span>
                       )}
                       {isOutbid && (
-                        <span className="text-[10px] font-semibold text-red-400 border border-red-400/30 bg-red-400/8 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                        <span className="text-[10px] font-semibold text-red-700 border border-red-200 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
                           Outbid — {formatCurrency(currentMax)}
                         </span>
                       )}
                       {auction.status === 'closed' && !isWinner && (
-                        <span className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wide">
                           Ended
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground/50 tabular-nums">
+                    <p className="text-[10px] text-muted-foreground tabular-nums">
                       {bidCount} bid{bidCount !== 1 ? 's' : ''} · {formatRelativeTime(latestBid.created_at)}
                     </p>
                   </div>

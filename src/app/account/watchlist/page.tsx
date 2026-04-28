@@ -2,8 +2,14 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { AuctionGrid } from '@/components/auction-grid'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata = {
+  title: 'Watchlist — CharityBid',
+}
 
 export default async function WatchlistPage() {
   const supabase = await createClient()
@@ -23,14 +29,21 @@ export default async function WatchlistPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-      <div>
-        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Account</p>
-        <h1 className="font-display italic text-3xl text-foreground">Watchlist</h1>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">Watchlist</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {auctions.length === 0 ? 'No saved auctions' : `${auctions.length} saved auction${auctions.length !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+        <Link href="/account" className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}>
+          ← Account
+        </Link>
       </div>
 
       {auctions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
-          <span className="text-3xl text-rose-400/20">♥</span>
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 rounded-2xl border border-border bg-card shadow-sm">
+          <span className="text-3xl text-rose-400/30">♥</span>
           <div className="space-y-1">
             <p className="font-display italic text-xl text-foreground/60">Nothing saved yet</p>
             <p className="text-sm text-muted-foreground">
@@ -39,9 +52,9 @@ export default async function WatchlistPage() {
           </div>
           <Link
             href="/"
-            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--gold)] text-[oklch(0.11_0.010_255)] text-sm font-bold hover:bg-[var(--gold)]/90 transition-colors"
+            className={cn(buttonVariants({ size: 'sm' }), 'mt-2 shadow-sm font-semibold')}
           >
-            Browse Auctions
+            Browse auctions
           </Link>
         </div>
       ) : (

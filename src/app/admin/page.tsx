@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { formatCurrency } from '@/lib/utils'
 import { CloseAuctionButton } from '@/components/admin/close-auction-button'
@@ -8,19 +9,22 @@ import { SeedButton } from '@/components/admin/seed-button'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ key?: string }>
-}) {
-  const { key } = await searchParams
-  const adminKey = process.env.ADMIN_SECRET
+export default async function AdminPage() {
+  // Auth: must be logged in and is_admin = true
+  const supabaseUser = await createClient()
+  const { data: { user } } = await supabaseUser.auth.getUser()
 
-  // Simple key-based auth for the admin UI
-  if (!adminKey || key !== adminKey) {
-    redirect(`/admin?key=${key ?? ''}`)
-  }
+  if (!user) redirect('/auth/login?redirectTo=/admin')
 
+  const { data: profile } = await supabaseUser
+    .from('users')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.is_admin) redirect('/')
+
+  const adminKey = process.env.ADMIN_SECRET ?? ''
   const supabase = createAdminClient()
 
   const [{ data: auctions }, { count: totalBids }, { count: totalUsers }] = await Promise.all([
@@ -46,9 +50,9 @@ export default async function AdminPage({
           <h1 className="font-display italic text-3xl text-foreground">Admin Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">
-          <SeedButton adminKey={key!} />
+          <SeedButton adminKey={adminKey} />
           <Link
-            href={`/admin/auctions/new?key=${key}`}
+            href="/admin/auctions/new"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--gold)] text-[oklch(0.11_0.010_255)] text-sm font-bold hover:bg-[var(--gold)]/90 transition-colors"
           >
             + New Auction
@@ -108,7 +112,7 @@ export default async function AdminPage({
                 >
                   View ↗
                 </Link>
-                <CloseAuctionButton auctionId={auction.id} adminKey={key!} />
+                <CloseAuctionButton auctionId={auction.id} adminKey={adminKey} />
               </div>
             </div>
           ))}

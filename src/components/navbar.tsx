@@ -19,13 +19,14 @@ import type { User as AuthUser } from '@supabase/supabase-js'
 interface NavbarProps {
   user: AuthUser | null
   profile: User | null
+  isAdmin?: boolean
 }
 
 const navLinks = [
   { href: '/', label: 'Browse auctions' },
 ]
 
-export function Navbar({ user, profile }: NavbarProps) {
+export function Navbar({ user, profile, isAdmin = false }: NavbarProps) {
   const router = useRouter()
   const pathname = usePathname()
 
@@ -110,6 +111,14 @@ export function Navbar({ user, profile }: NavbarProps) {
                   >
                     Watchlist
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-2 text-[var(--gold)]"
+                      onClick={() => router.push('/admin')}
+                    >
+                      Admin ◆
+                    </DropdownMenuItem>
+                  )}
                 </div>
                 <DropdownMenuSeparator />
                 <div className="py-1">

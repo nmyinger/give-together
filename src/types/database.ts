@@ -191,6 +191,7 @@ export type Database = {
           created_at: string
           has_payment_method: boolean
           id: string
+          is_admin: boolean
           name: string
           stripe_customer_id: string | null
           updated_at: string
@@ -200,6 +201,7 @@ export type Database = {
           created_at?: string
           has_payment_method?: boolean
           id: string
+          is_admin?: boolean
           name?: string
           stripe_customer_id?: string | null
           updated_at?: string
@@ -209,6 +211,7 @@ export type Database = {
           created_at?: string
           has_payment_method?: boolean
           id?: string
+          is_admin?: boolean
           name?: string
           stripe_customer_id?: string | null
           updated_at?: string

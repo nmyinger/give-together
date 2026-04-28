@@ -36,11 +36,10 @@ export function ViewerCount({ auctionId, userId }: ViewerCountProps) {
   }, [auctionId, userId])
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+    <div className="flex items-center gap-1.5 text-xs text-white/70">
       <Eye className="w-3 h-3" />
       <span className="tabular-nums">{count}</span>
-      <span>{count === 1 ? 'watching' : 'watching'}</span>
-      {count > 1 && <span className="h-1.5 w-1.5 rounded-full bg-green-400/60 animate-pulse" />}
+      <span>watching</span>
     </div>
   )
 }

@@ -100,6 +100,12 @@ export default async function AccountPage() {
         >
           Bid history
         </Link>
+        <Link
+          href="/account/watchlist"
+          className="px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Watchlist
+        </Link>
       </div>
 
       <div className="space-y-4">
